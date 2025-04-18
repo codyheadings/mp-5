@@ -3,6 +3,9 @@
 import getCollection, {ALIAS_COLLECTION} from "@/db";
 import {AliasProps} from "@/types";
 
+function isValidUrl(url: string): boolean {
+    return url.slice(0,5) === 'http:' || url.slice(0,6) === 'https:';
+}
 
 export default async function createNewAlias(
     alias: string,
@@ -10,9 +13,16 @@ export default async function createNewAlias(
 ): Promise<{success: boolean; data?: AliasProps; error?: string}> {
     console.log("Creating new alias url...");
 
+    if (!isValidUrl(url)) {
+        return {
+            success: false,
+            error: "A valid URL must begin with http:// or https://"
+        };
+    }
+
     try {
         const response = await fetch(url, {
-            method: "GET",
+            method: "HEAD",
         });
 
         if(!response.ok){
